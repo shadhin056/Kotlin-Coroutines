@@ -22,14 +22,21 @@ class MainActivity : AppCompatActivity() {
         coroutineScope.launch {
             val originalDeferred = coroutineScope.async(Dispatchers.IO) { getOrginalBitmap() }
             val orginalBitmap = originalDeferred.await()
-            loadImage(orginalBitmap)
+            //loadImage(Filter.apply(orginalBitmap))
+            val filteredDeferred =
+                coroutineScope.async(Dispatchers.Default) { applyFilter(orginalBitmap) }
+            val filterBitmap = filteredDeferred.await()
+            loadImage(filterBitmap)
         }
     }
+
     private fun getOrginalBitmap(): Bitmap {
         return URL(IMAGE_URL).openStream().use {
             BitmapFactory.decodeStream(it)
         }
     }
+
+    private fun applyFilter(orginalImage: Bitmap) = Filter.apply(orginalImage)
     private fun loadImage(bmp: Bitmap) {
         progressBar.visibility = View.GONE
         imageView.setImageBitmap(bmp)
